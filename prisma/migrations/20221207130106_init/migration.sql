@@ -1,0 +1,43 @@
+-- CreateTable
+CREATE TABLE `cafes` (
+    `id` VARCHAR(191) NOT NULL,
+    `areaA` VARCHAR(191) NOT NULL,
+    `areaB` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `addressLine` VARCHAR(191) NOT NULL DEFAULT '',
+    `lat` DOUBLE NOT NULL DEFAULT 0.0,
+    `lng` DOUBLE NOT NULL DEFAULT 0.0,
+    `images` JSON NULL,
+    `website` VARCHAR(191) NOT NULL DEFAULT '',
+    `tel` VARCHAR(191) NOT NULL DEFAULT '',
+    `openingHour` INTEGER NOT NULL DEFAULT 0,
+    `closingHour` INTEGER NOT NULL DEFAULT 0,
+    `status` ENUM('PROCESSING', 'PUBLISHED', 'DELETED') NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `themes` (
+    `id` VARCHAR(191) NOT NULL,
+    `cafeId` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `intro` TEXT NOT NULL,
+    `thumbnail` VARCHAR(191) NOT NULL DEFAULT '',
+    `during` INTEGER NOT NULL DEFAULT 0,
+    `minPerson` INTEGER NOT NULL DEFAULT 0,
+    `maxPerson` INTEGER NOT NULL DEFAULT 0,
+    `level` DOUBLE NOT NULL DEFAULT 0.0,
+    `detailUrl` VARCHAR(191) NOT NULL DEFAULT '',
+    `reservationUrl` VARCHAR(191) NOT NULL DEFAULT '',
+    `status` ENUM('PROCESSING', 'PUBLISHED', 'DELETED') NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- AddForeignKey
+ALTER TABLE `themes` ADD CONSTRAINT `themes_cafeId_fkey` FOREIGN KEY (`cafeId`) REFERENCES `cafes`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

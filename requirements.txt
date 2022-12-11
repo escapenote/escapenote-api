@@ -1,0 +1,11 @@
+fastapi==0.70.0
+fastapi-cache2==0.1.8
+uvicorn==0.15.0
+pydantic==1.8.2
+python-dotenv==0.19.1
+prisma==0.7.1
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.5
+boto3==1.24.71
+orjson==3.8.0

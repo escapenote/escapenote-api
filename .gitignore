@@ -1,0 +1,12 @@
+# IDEs editors
+.vscode/
+.envrc
+.idea
+
+# Virtualenv
+.venv
+venv/
+
+# Enviroments
+.env
+.env.local
