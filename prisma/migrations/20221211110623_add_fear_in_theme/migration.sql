@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `themes` ADD COLUMN `fear` INTEGER NOT NULL DEFAULT 0;
