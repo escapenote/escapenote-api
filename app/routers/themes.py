@@ -17,6 +17,7 @@ async def get_themes(
     genre: Optional[str] = None,
     areaB: Optional[str] = None,
     level: Optional[float] = None,
+    lockingRatio: Optional[int] = None,
     take: Optional[int] = 20,
     cursor: Optional[str] = None,
 ):
@@ -30,13 +31,17 @@ async def get_themes(
         "order": {"createdAt": "desc"},
     }
     if genre:
-        options["where"]["genre"] = {"id": genre}
+        options["where"]["genre"] = {"some": {"id": genre}}
     if areaB:
         options["where"]["cafe"] = {"areaB": areaB}
     if level:
         options["where"]["level"] = level
+    if lockingRatio:
+        options["where"]["lockingRatio"] = lockingRatio
     if cursor:
         options["cursor"] = {"id": cursor}
+
+    await prisma.theme.find_many(where={"genre": {"every": {}}})
 
     themes = await prisma.theme.find_many(**options)
     result = find_many_cursor(themes, cursor=cursor)
@@ -47,6 +52,9 @@ async def get_themes(
 async def get_theme_detail(id: str):
     theme = await prisma.theme.find_unique(
         where={"id": id},
-        include={"genre": True},
+        include={
+            "cafe": True,
+            "genre": True,
+        },
     )
     return theme
