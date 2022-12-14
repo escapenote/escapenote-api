@@ -1,7 +1,9 @@
 from typing import Any, List, Optional
 
 
-def find_many_cursor(items: List[Any], take: Optional[int] = 20, cursor: Optional[bool] = None):
+def find_many_cursor(
+    items: List[Any], take: Optional[int] = 20, cursor: Optional[bool] = None
+):
     if cursor:
         if items:
             end_cursor = items[-1].id
@@ -24,8 +26,12 @@ def find_many_cursor(items: List[Any], take: Optional[int] = 20, cursor: Optiona
             "items": items,
         }
     else:
-        start_cursor = items[0].id
-        end_cursor = items[-1].id
+        if items:
+            start_cursor = items[0].id
+            end_cursor = items[-1].id
+        else:
+            start_cursor = None
+            end_cursor = None
 
         if len(items) < take:
             end_cursor = None
@@ -40,4 +46,3 @@ def find_many_cursor(items: List[Any], take: Optional[int] = 20, cursor: Optiona
             },
             "items": items,
         }
-    
