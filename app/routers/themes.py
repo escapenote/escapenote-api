@@ -24,12 +24,13 @@ async def get_themes(
         "take": take + 1,
         "where": {"status": "PUBLISHED"},
         "include": {
-          "cafe": True,
+            "cafe": True,
+            "genre": True,
         },
         "order": {"createdAt": "desc"},
     }
     if genre:
-        options["where"]["genre"] = genre
+        options["where"]["genre"] = {"id": genre}
     if areaB:
         options["where"]["cafe"] = {"areaB": areaB}
     if level:
@@ -46,5 +47,6 @@ async def get_themes(
 async def get_theme_detail(id: str):
     theme = await prisma.theme.find_unique(
         where={"id": id},
+        include={"genre": True},
     )
     return theme

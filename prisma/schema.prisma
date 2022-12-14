@@ -15,24 +15,32 @@ enum StatusType {
 }
 
 model Cafe {
-  id          String     @id @default(cuid())
-  areaA       String
-  areaB       String
-  name        String
-  addressLine String     @default("")
-  lat         Float      @default(0.0)
-  lng         Float      @default(0.0)
-  images      Json?      @default("[]")
-  website     String     @default("")
-  tel         String     @default("")
-  openingHour Int        @default(0)
-  closingHour Int        @default(0)
-  themes      Theme[]
-  status      StatusType
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id           String     @id @default(cuid())
+  areaA        String
+  areaB        String
+  name         String
+  addressLine  String     @default("")
+  lat          Float      @default(0.0)
+  lng          Float      @default(0.0)
+  images       Json       @default("[]")
+  website      String     @default("")
+  tel          String     @default("")
+  openingHours Json       @default("[]")
+  themes       Theme[]
+  status       StatusType
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@map("cafes")
+}
+
+model Genre {
+  id        String   @id
+  themes    Theme[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("genre")
 }
 
 model Theme {
@@ -42,7 +50,7 @@ model Theme {
   name           String
   intro          String     @db.Text
   thumbnail      String     @default("")
-  genre          String     @default("")
+  genre          Genre[]
   price          Int        @default(0)
   lockingRatio   Int        @default(0)
   during         Int        @default(0)
