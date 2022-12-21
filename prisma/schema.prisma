@@ -19,13 +19,14 @@ model Cafe {
   areaA        String
   areaB        String
   name         String
+  intro        String     @default("") @db.Text
   addressLine  String     @default("")
   lat          Float      @default(0.0)
   lng          Float      @default(0.0)
-  images       Json       @default("[]")
+  images       Json
   website      String     @default("")
   tel          String     @default("")
-  openingHours Json       @default("[]")
+  openingHours Json
   themes       Theme[]
   status       StatusType
   createdAt    DateTime   @default(now())
