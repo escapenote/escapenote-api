@@ -59,6 +59,7 @@ model Theme {
   maxPerson      Int        @default(0)
   level          Float      @default(0.0)
   fear           Int        @default(0)
+  activity       Int        @default(0)
   detailUrl      String     @default("")
   reservationUrl String     @default("")
   openDate       String     @default("")

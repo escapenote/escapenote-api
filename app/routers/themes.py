@@ -14,6 +14,7 @@ router = APIRouter(
 
 @router.get("")
 async def get_themes(
+    term: Optional[str] = None,
     genre: Optional[str] = None,
     areaB: Optional[str] = None,
     level: Optional[float] = None,
@@ -30,6 +31,8 @@ async def get_themes(
         },
         "order": {"createdAt": "desc"},
     }
+    if term:
+        options["where"]["name"] = {"contains": term}
     if genre:
         options["where"]["genre"] = {"some": {"id": genre}}
     if areaB:

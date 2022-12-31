@@ -14,6 +14,7 @@ router = APIRouter(
 
 @router.get("")
 async def get_cafes(
+    term: Optional[str] = None,
     areaB: Optional[str] = None,
     take: Optional[int] = 20,
     cursor: Optional[str] = None,
@@ -24,6 +25,8 @@ async def get_cafes(
         "include": {"themes": True},
         "order": {"createdAt": "desc"},
     }
+    if term:
+        options["where"]["name"] = {"contains": term}
     if areaB:
         options["where"]["areaB"] = areaB
     if cursor:
