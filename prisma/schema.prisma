@@ -28,6 +28,7 @@ model Cafe {
   tel          String     @default("")
   openingHours Json
   themes       Theme[]
+  view         Int        @default(0)
   status       StatusType
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -63,6 +64,7 @@ model Theme {
   detailUrl      String     @default("")
   reservationUrl String     @default("")
   openDate       String     @default("")
+  view           Int        @default(0)
   status         StatusType
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt

@@ -28,6 +28,8 @@ async def get_themes(
     maxLockingRatio: Optional[int] = None,
     take: Optional[int] = 20,
     cursor: Optional[str] = None,
+    sort: Optional[str] = "createdAt",
+    order: Optional[str] = "desc",
 ):
     options: types.FindManyThemeArgsFromTheme = {
         "take": take + 1,
@@ -36,7 +38,7 @@ async def get_themes(
             "cafe": True,
             "genre": True,
         },
-        "order": {"createdAt": "desc"},
+        "order": {sort: order},
     }
     if term:
         options["where"]["name"] = {"contains": term}
@@ -98,5 +100,9 @@ async def get_theme_detail(id: str):
             "cafe": True,
             "genre": True,
         },
+    )
+    await prisma.theme.update(
+        where={"id": id},
+        data={"view": {"increment": 1}},
     )
     return theme

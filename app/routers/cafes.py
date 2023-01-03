@@ -18,12 +18,14 @@ async def get_cafes(
     areaB: Optional[str] = None,
     take: Optional[int] = 20,
     cursor: Optional[str] = None,
+    sort: Optional[str] = "createdAt",
+    order: Optional[str] = "desc",
 ):
     options = {
         "take": take + 1,
         "where": {"status": "PUBLISHED"},
         "include": {"themes": True},
-        "order": {"createdAt": "desc"},
+        "order": {sort: order},
     }
     if term:
         options["where"]["name"] = {"contains": term}
@@ -42,5 +44,9 @@ async def get_cafe_detail(id: str):
     cafe = await prisma.cafe.find_unique(
         where={"id": id},
         include={"themes": {"include": {"genre": True}}},
+    )
+    await prisma.cafe.update(
+        where={"id": id},
+        data={"view": {"increment": 1}},
     )
     return cafe
