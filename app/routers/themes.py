@@ -17,6 +17,7 @@ router = APIRouter(
 async def get_themes(
     term: Optional[str] = None,
     areaB: Optional[str] = None,
+    genre: Optional[str] = None,
     level: Optional[int] = None,
     person: Optional[int] = None,
     minPrice: Optional[int] = None,
@@ -41,6 +42,8 @@ async def get_themes(
         options["where"]["name"] = {"contains": term}
     if areaB:
         options["where"]["cafe"] = {"areaB": areaB}
+    if genre:
+        options["where"]["genre"] = {"some": {"id": genre}}
     if level:
         options["where"]["level"] = level
     if person:
@@ -77,8 +80,6 @@ async def get_themes(
             options["where"]["lockingRatio"] = {"gte": minLockingRatio}
         elif maxLockingRatio:
             options["where"]["lockingRatio"] = {"lte": maxLockingRatio}
-    # if genre:
-    #     options["where"]["genre"] = {"some": {"id": genre}}
     if cursor:
         options["cursor"] = {"id": cursor}
 
