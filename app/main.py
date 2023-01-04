@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
 
 from app.prisma import prisma
 from app.config import settings
@@ -39,12 +41,28 @@ app.add_middleware(
 # Compression
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
+# Init Fastapi Cache
+@app.on_event("startup")
+async def startup():
+    FastAPICache.init(InMemoryBackend(), prefix="escapenote-api-cache")
 
+
+# Flush Fastapi Cache
+@app.get("/cache/flush/{namespace}", tags=["CACHE"])
+async def clear_caches(namespace: str):
+    return {
+        "namespace": namespace,
+        "status": await FastAPICache.clear(namespace=namespace),
+    }
+
+
+# Prisma startup
 @app.on_event("startup")
 async def startup():
     await prisma.connect()
 
 
+# Prisma shutdown
 @app.on_event("shutdown")
 async def shutdown():
     await prisma.disconnect()
@@ -58,4 +76,5 @@ def root():
     }
 
 
+# Routers
 app.include_router(routers)
