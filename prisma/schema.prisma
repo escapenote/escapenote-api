@@ -16,6 +16,7 @@ enum StatusType {
 
 model Cafe {
   id           String     @id @default(cuid())
+  naverMapId   String     @default("")
   areaA        String
   areaB        String
   name         String

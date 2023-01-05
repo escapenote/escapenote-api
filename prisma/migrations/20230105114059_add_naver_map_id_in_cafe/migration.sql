@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `cafes` ADD COLUMN `naverMapId` VARCHAR(191) NOT NULL DEFAULT '',
+    MODIFY `intro` TEXT NOT NULL DEFAULT '';
