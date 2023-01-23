@@ -8,6 +8,7 @@ from app.models.auth import (
     CheckForDuplicateNicknameDto,
     EditProfileDto,
     LoginDto,
+    ResetPasswordDto,
     SendPasswordByEmaileDto,
     Token,
     CheckForDuplicateEmaileDto,
@@ -48,6 +49,13 @@ async def edit_profile(
     return await auth_service.edit_profile(current_user.id, body)
 
 
+@router.patch("/password/reset")
+async def reset_password(
+    body: ResetPasswordDto, current_user: User = Depends(auth_service.get_current_user)
+):
+    return await auth_service.reset_password(current_user.id, body)
+
+
 @router.post("/email/send_password")
 async def send_password_by_email(body: SendPasswordByEmaileDto):
     return await auth_service.send_password(body.email)
@@ -73,11 +81,6 @@ async def signup_by_email(res: Response, body: SignupByEmaileDto):
     return await auth_service.signup(res, body)
 
 
-@router.post("/login")
-async def login(res: Response, body: LoginDto):
-    return await auth_service.login(res, body.email, body.password)
-
-
 @router.post("/nickname/duplicate")
 async def check_for_duplicate_nickname(body: CheckForDuplicateNicknameDto):
     return await auth_service.check_for_duplicate_nickname(body.nickname)
@@ -93,6 +96,11 @@ async def refresh(res: Response, refreshToken: Optional[str] = Cookie(None)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="not found refresh token",
         )
+
+
+@router.post("/login")
+async def login(res: Response, body: LoginDto):
+    return await auth_service.login(res, body.email, body.password)
 
 
 @router.post("/logout")

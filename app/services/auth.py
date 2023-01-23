@@ -4,7 +4,12 @@ from fastapi.security import OAuth2PasswordBearer
 
 from app.prisma import prisma
 from app.config import settings
-from app.models.auth import AccessUser, EditProfileDto, SignupByEmaileDto
+from app.models.auth import (
+    AccessUser,
+    EditProfileDto,
+    ResetPasswordDto,
+    SignupByEmaileDto,
+)
 from app.utils import auth as auth_utils
 
 DOMAIN = "localhost" if settings.app_env == "local" else ".escape-note.com"
@@ -48,6 +53,33 @@ async def edit_profile(user_id: str, body: EditProfileDto):
             **body.dict(exclude_none=True),
         },
     )
+    return user
+
+
+async def reset_password(user_id: str, body: ResetPasswordDto):
+    user = await prisma.user.find_unique(where={"id": user_id})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="사용자를 찾을 수 없습니다.",
+        )
+
+    valid_password = auth_utils.verify_password(
+        body.oldPassword,
+        user.password,
+    )
+    if not valid_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="잘못된 비밀번호입니다.",
+        )
+
+    hashed_password = auth_utils.get_password_hash(body.newsPassword)
+    user = await prisma.user.update(
+        where={"id": user_id},
+        data={"password": hashed_password},
+    )
+
     return user
 
 
