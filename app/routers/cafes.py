@@ -65,11 +65,7 @@ async def get_cafe_detail(
     options = {
         "where": {"id": id},
         "include": {
-            "themes": {
-                "include": {
-                    "genre": True,
-                },
-            },
+            "themes": True,
         },
     }
     if current_user:
