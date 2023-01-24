@@ -74,7 +74,7 @@ async def reset_password(user_id: str, body: ResetPasswordDto):
             detail="잘못된 비밀번호입니다.",
         )
 
-    hashed_password = auth_utils.get_password_hash(body.newsPassword)
+    hashed_password = auth_utils.get_password_hash(body.newPassword)
     user = await prisma.user.update(
         where={"id": user_id},
         data={"password": hashed_password},

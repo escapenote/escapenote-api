@@ -19,7 +19,7 @@ class EditProfileDto(BaseModel):
 
 class ResetPasswordDto(BaseModel):
     oldPassword: str
-    newsPassword: str
+    newPassword: str
 
 
 class SendPasswordByEmaileDto(BaseModel):
