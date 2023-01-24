@@ -5,7 +5,8 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  // url      = env("DATABASE_URL")
+  url      = "mysql://admin:EscapeNote22@escapenote-db-prod.cjwjtu7btqvc.ap-northeast-2.rds.amazonaws.com/escapenote"
 }
 
 enum CertType {
@@ -147,11 +148,13 @@ model ThemeSave {
 }
 
 model Faq {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   question  String
-  answer    String   @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  answer    String?    @db.Text
+  position  Int        @default(0)
+  status    StatusType
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   @@map("faq")
 }
