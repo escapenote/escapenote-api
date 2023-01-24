@@ -17,7 +17,7 @@ class EditProfileDto(BaseModel):
     type: Optional[str] = Field("")
 
 
-class ResetPasswordDto(BaseModel):
+class ChangePasswordDto(BaseModel):
     oldPassword: str
     newPassword: str
 

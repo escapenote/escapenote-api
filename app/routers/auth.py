@@ -8,7 +8,7 @@ from app.models.auth import (
     CheckForDuplicateNicknameDto,
     EditProfileDto,
     LoginDto,
-    ResetPasswordDto,
+    ChangePasswordDto,
     SendPasswordByEmaileDto,
     Token,
     CheckForDuplicateEmaileDto,
@@ -49,11 +49,11 @@ async def edit_profile(
     return await auth_service.edit_profile(current_user.id, body)
 
 
-@router.patch("/password/reset")
-async def reset_password(
-    body: ResetPasswordDto, current_user: User = Depends(auth_service.get_current_user)
+@router.patch("/password/change")
+async def change_password(
+    body: ChangePasswordDto, current_user: User = Depends(auth_service.get_current_user)
 ):
-    return await auth_service.reset_password(current_user.id, body)
+    return await auth_service.change_password(current_user.id, body)
 
 
 @router.post("/email/send_password")

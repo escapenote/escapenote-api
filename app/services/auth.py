@@ -7,7 +7,7 @@ from app.config import settings
 from app.models.auth import (
     AccessUser,
     EditProfileDto,
-    ResetPasswordDto,
+    ChangePasswordDto,
     SignupByEmaileDto,
 )
 from app.utils import auth as auth_utils
@@ -56,7 +56,7 @@ async def edit_profile(user_id: str, body: EditProfileDto):
     return user
 
 
-async def reset_password(user_id: str, body: ResetPasswordDto):
+async def change_password(user_id: str, body: ChangePasswordDto):
     user = await prisma.user.find_unique(where={"id": user_id})
     if not user:
         raise HTTPException(
