@@ -112,6 +112,13 @@ async def check_for_duplicate_nickname(nickname: str):
 
 
 async def send_password(email: str):
+    user = await prisma.user.find_unique(where={"email": email})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="사용자를 찾을 수 없습니다.",
+        )
+
     password = auth_utils.generate_password()
     hashed_password = auth_utils.get_password_hash(password)
 
