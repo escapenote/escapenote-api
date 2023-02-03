@@ -1,13 +1,6 @@
 import uuid
 import boto3
 from fastapi import APIRouter, File, UploadFile
-from fastapi import APIRouter, Depends, Header
-
-from app.config import settings
-from app.models.auth import AccessUser
-from app.models.user import User
-from app.prisma import prisma
-from app.services import auth as auth_service
 
 
 router = APIRouter(

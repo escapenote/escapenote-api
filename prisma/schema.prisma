@@ -34,24 +34,26 @@ model Cert {
 }
 
 model User {
-  id                  String      @id @default(cuid())
-  email               String?     @unique
-  emailVerified       Boolean     @default(false)
-  phoneNumber         String?     @unique
-  phoneNumberVerified Boolean     @default(false)
+  id                  String        @id @default(cuid())
+  email               String?       @unique
+  emailVerified       Boolean       @default(false)
+  phoneNumber         String?       @unique
+  phoneNumberVerified Boolean       @default(false)
   password            String?
-  refreshToken        String      @default("")
-  avatar              String      @default("")
-  nickname            String      @unique
-  type                String      @default("")
-  agreeOlder14Years   Boolean     @default(false)
-  agreeTerms          Boolean     @default(false)
-  agreePrivacy        Boolean     @default(false)
-  agreeMarketing      Boolean     @default(false)
+  refreshToken        String        @default("")
+  avatar              String        @default("")
+  nickname            String        @unique
+  type                String        @default("")
+  agreeOlder14Years   Boolean       @default(false)
+  agreeTerms          Boolean       @default(false)
+  agreePrivacy        Boolean       @default(false)
+  agreeMarketing      Boolean       @default(false)
   cafeSaves           CafeSave[]
+  cafeReviews         CafeReview[]
   themeSaves          ThemeSave[]
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
+  themeReviews        ThemeReview[]
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
   @@map("users")
 }
@@ -63,25 +65,28 @@ enum StatusType {
 }
 
 model Cafe {
-  id           String     @id @default(cuid())
-  naverMapId   String     @default("")
-  areaA        String
-  areaB        String
-  name         String
-  intro        String?    @db.Text
-  addressLine  String     @default("")
-  lat          Float      @default(0.0)
-  lng          Float      @default(0.0)
-  images       Json
-  website      String     @default("")
-  tel          String     @default("")
-  openingHours Json
-  themes       Theme[]
-  view         Int        @default(0)
-  saves        CafeSave[]
-  status       StatusType
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  id            String       @id @default(cuid())
+  naverMapId    String       @default("")
+  areaA         String
+  areaB         String
+  name          String
+  intro         String?      @db.Text
+  addressLine   String       @default("")
+  lat           Float        @default(0.0)
+  lng           Float        @default(0.0)
+  images        Json
+  website       String       @default("")
+  tel           String       @default("")
+  openingHours  Json
+  reviewsRating Float        @default(0.0)
+  reviewsCount  Int          @default(0)
+  themes        Theme[]
+  view          Int          @default(0)
+  saves         CafeSave[]
+  reviews       CafeReview[]
+  status        StatusType
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   @@map("cafes")
 }
@@ -98,6 +103,20 @@ model CafeSave {
   @@map("cafe_saves")
 }
 
+model CafeReview {
+  id        String   @id @default(cuid())
+  rating    Float    @default(5)
+  text      String   @default("") @db.Text
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  cafe      Cafe     @relation(fields: [cafeId], references: [id])
+  cafeId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cafe_reviews")
+}
+
 model Genre {
   id        String   @id
   themes    Theme[]
@@ -108,29 +127,35 @@ model Genre {
 }
 
 model Theme {
-  id             String      @id @default(cuid())
-  cafe           Cafe        @relation(fields: [cafeId], references: [id])
-  cafeId         String
-  name           String
-  intro          String      @db.Text
-  thumbnail      String      @default("")
-  genre          Genre[]
-  price          Int         @default(0)
-  lockingRatio   Int         @default(0)
-  during         Int         @default(0)
-  minPerson      Int         @default(0)
-  maxPerson      Int         @default(0)
-  level          Float       @default(0.0)
-  fear           Int         @default(0)
-  activity       Int         @default(0)
-  detailUrl      String      @default("")
-  reservationUrl String      @default("")
-  openDate       String      @default("")
-  view           Int         @default(0)
-  saves          ThemeSave[]
-  status         StatusType
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  id              String        @id @default(cuid())
+  cafe            Cafe          @relation(fields: [cafeId], references: [id])
+  cafeId          String
+  name            String
+  intro           String        @db.Text
+  thumbnail       String        @default("")
+  genre           Genre[]
+  price           Int           @default(0)
+  lockingRatio    Int           @default(0)
+  during          Int           @default(0)
+  minPerson       Int           @default(0)
+  maxPerson       Int           @default(0)
+  level           Float         @default(0.0)
+  fear            Int           @default(0)
+  activity        Int           @default(0)
+  detailUrl       String        @default("")
+  reservationUrl  String        @default("")
+  openDate        String        @default("")
+  reviewsRating   Float         @default(0.0)
+  reviewsLevel    Float         @default(0.0)
+  reviewsFear     Float         @default(0.0)
+  reviewsActivity Float         @default(0.0)
+  reviewsCount    Int           @default(0)
+  view            Int           @default(0)
+  saves           ThemeSave[]
+  reviews         ThemeReview[]
+  status          StatusType
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@map("themes")
 }
@@ -145,6 +170,24 @@ model ThemeSave {
   updatedAt DateTime @updatedAt
 
   @@map("theme_saves")
+}
+
+model ThemeReview {
+  id        String   @id @default(cuid())
+  rating    Float    @default(5)
+  success   Boolean  @default(false)
+  level     Int      @default(0)
+  fear      Int      @default(0)
+  activity  Int      @default(0)
+  text      String   @default("") @db.Text
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  theme     Theme    @relation(fields: [themeId], references: [id])
+  themeId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("theme_reviews")
 }
 
 model Faq {

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Header
 
 from app.prisma import prisma
 from app.models.auth import AccessUser
+from app.models.cafe import CreateCafeReview
 from app.utils.find_many_cursor import find_many_cursor
 from app.services import auth as auth_service
 
@@ -74,6 +75,14 @@ async def get_cafe_detail(
         }
 
     cafe = await prisma.cafe.find_unique(**options)
+    # reviews_count = len(cafe.reviews)
+    # reviews_rating = sum(list(map(lambda x: x.rating, cafe.reviews))) / reviews_count
+
+    # cafe = cafe.dict()
+    # cafe.pop("reviews", None)
+    # cafe["reviewsRating"] = reviews_rating
+    # cafe["reviewsCount"] = reviews_count
+
     await prisma.cafe.update(
         where={"id": id},
         data={"view": {"increment": 1}},
@@ -112,3 +121,58 @@ async def unsave_cafe(
         await prisma.cafesave.delete(where={"id": cafe_save.id})
         return True
     return False
+
+
+@router.get("/{id}/reviews")
+async def get_cafe_reviews(
+    id: str,
+    take: Optional[int] = 10,
+    cursor: Optional[str] = None,
+):
+    options = {
+        "take": take + 1,
+        "where": {"cafeId": id},
+        "include": {
+            "user": True,
+        },
+        "order": {"createdAt": "desc"},
+    }
+    if cursor:
+        options["cursor"] = {"id": cursor}
+
+    reviews = await prisma.cafereview.find_many(**options)
+    result = find_many_cursor(reviews, cursor=cursor)
+    return result
+
+
+@router.post("/{id}/reviews", response_model=bool)
+async def write_review_on_cafe(
+    id: str,
+    body: CreateCafeReview,
+    current_user: AccessUser = Depends(auth_service.get_current_user),
+):
+    try:
+        await prisma.cafereview.create(
+            data={
+                "cafe": {"connect": {"id": id}},
+                "rating": body.rating,
+                "text": body.text,
+                "user": {"connect": {"id": current_user.id}},
+            }
+        )
+
+        reviews = await prisma.cafereview.find_many(where={"cafeId": id})
+        reviews_count = len(reviews)
+        reviews_rating = sum(list(map(lambda x: x.rating, reviews))) / reviews_count
+
+        await prisma.cafe.update(
+            where={"id": id},
+            data={
+                "reviewsRating": reviews_rating,
+                "reviewsCount": reviews_count,
+            },
+        )
+
+        return True
+    except:
+        return False

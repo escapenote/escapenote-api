@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Header
 
 from app.prisma import prisma
 from app.models.auth import AccessUser
+from app.models.theme import CreateThemeReview
 from app.utils.find_many_cursor import find_many_cursor
 from app.services import auth as auth_service
 
@@ -107,6 +108,7 @@ async def get_theme_detail(
         "include": {
             "cafe": True,
             "genre": True,
+            "reviews": True,
         },
     }
     if current_user:
@@ -115,6 +117,22 @@ async def get_theme_detail(
         }
 
     theme = await prisma.theme.find_unique(**options)
+    # reviews_count = len(theme.reviews)
+    # reviews_rating = sum(list(map(lambda x: x.rating, theme.reviews))) / reviews_count
+    # reviews_level = sum(list(map(lambda x: x.level, theme.reviews))) / reviews_count
+    # reviews_fear = sum(list(map(lambda x: x.fear, theme.reviews))) / reviews_count
+    # reviews_activity = (
+    #     sum(list(map(lambda x: x.activity, theme.reviews))) / reviews_count
+    # )
+
+    # theme = theme.dict()
+    # theme.pop("reviews", None)
+    # theme["reviewsRating"] = reviews_rating
+    # theme["reviewsLevel"] = reviews_level
+    # theme["reviewsFear"] = reviews_fear
+    # theme["reviewsActivity"] = reviews_activity
+    # theme["reviewsCount"] = reviews_count
+
     await prisma.theme.update(
         where={"id": id},
         data={"view": {"increment": 1}},
@@ -153,3 +171,68 @@ async def unsave_theme(
         await prisma.themesave.delete(where={"id": theme_save.id})
         return True
     return False
+
+
+@router.get("/{id}/reviews")
+async def get_theme_reviews(
+    id: str,
+    take: Optional[int] = 10,
+    cursor: Optional[str] = None,
+):
+    options = {
+        "take": take + 1,
+        "where": {"themeId": id},
+        "include": {
+            "user": True,
+        },
+        "order": {"createdAt": "desc"},
+    }
+    if cursor:
+        options["cursor"] = {"id": cursor}
+
+    reviews = await prisma.themereview.find_many(**options)
+    result = find_many_cursor(reviews, cursor=cursor)
+    return result
+
+
+@router.post("/{id}/reviews", response_model=bool)
+async def write_review_on_theme(
+    id: str,
+    body: CreateThemeReview,
+    current_user: AccessUser = Depends(auth_service.get_current_user),
+):
+    try:
+        await prisma.themereview.create(
+            data={
+                "theme": {"connect": {"id": id}},
+                "rating": body.rating,
+                "success": body.success,
+                "level": body.level,
+                "fear": body.fear,
+                "activity": body.activity,
+                "text": body.text,
+                "user": {"connect": {"id": current_user.id}},
+            }
+        )
+
+        reviews = await prisma.themereview.find_many(where={"themeId": id})
+        reviews_count = len(reviews)
+        reviews_rating = sum(list(map(lambda x: x.rating, reviews))) / reviews_count
+        reviews_level = sum(list(map(lambda x: x.level, reviews))) / reviews_count
+        reviews_fear = sum(list(map(lambda x: x.fear, reviews))) / reviews_count
+        reviews_activity = sum(list(map(lambda x: x.activity, reviews))) / reviews_count
+
+        await prisma.theme.update(
+            where={"id": id},
+            data={
+                "reviewsRating": reviews_rating,
+                "reviewsLevel": reviews_level,
+                "reviewsFear": reviews_fear,
+                "reviewsActivity": reviews_activity,
+                "reviewsCount": reviews_count,
+            },
+        )
+
+        return True
+    except:
+        return False
