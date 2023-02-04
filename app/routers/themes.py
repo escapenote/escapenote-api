@@ -117,21 +117,6 @@ async def get_theme_detail(
         }
 
     theme = await prisma.theme.find_unique(**options)
-    # reviews_count = len(theme.reviews)
-    # reviews_rating = sum(list(map(lambda x: x.rating, theme.reviews))) / reviews_count
-    # reviews_level = sum(list(map(lambda x: x.level, theme.reviews))) / reviews_count
-    # reviews_fear = sum(list(map(lambda x: x.fear, theme.reviews))) / reviews_count
-    # reviews_activity = (
-    #     sum(list(map(lambda x: x.activity, theme.reviews))) / reviews_count
-    # )
-
-    # theme = theme.dict()
-    # theme.pop("reviews", None)
-    # theme["reviewsRating"] = reviews_rating
-    # theme["reviewsLevel"] = reviews_level
-    # theme["reviewsFear"] = reviews_fear
-    # theme["reviewsActivity"] = reviews_activity
-    # theme["reviewsCount"] = reviews_count
 
     await prisma.theme.update(
         where={"id": id},
@@ -217,10 +202,30 @@ async def write_review_on_theme(
 
         reviews = await prisma.themereview.find_many(where={"themeId": id})
         reviews_count = len(reviews)
-        reviews_rating = sum(list(map(lambda x: x.rating, reviews))) / reviews_count
-        reviews_level = sum(list(map(lambda x: x.level, reviews))) / reviews_count
-        reviews_fear = sum(list(map(lambda x: x.fear, reviews))) / reviews_count
-        reviews_activity = sum(list(map(lambda x: x.activity, reviews))) / reviews_count
+
+        reviews_rating_score = 0
+        reviews_level_score = 0
+        reviews_level_count = 0
+        reviews_fear_score = 0
+        reviews_fear_count = 0
+        reviews_activity_score = 0
+        reviews_activity_count = 0
+        for review in reviews:
+            reviews_rating_score += review.rating
+            if review.level:
+                reviews_level_score += review.level
+                reviews_level_count += 1
+            if review.fear:
+                reviews_fear_score += review.fear
+                reviews_fear_count += 1
+            if review.activity:
+                reviews_activity_score += review.activity
+                reviews_activity_count += 1
+
+        reviews_rating = reviews_rating_score / reviews_count
+        reviews_level = reviews_level_score / reviews_level_count
+        reviews_fear = reviews_fear_score / reviews_fear_count
+        reviews_activity = reviews_activity_score / reviews_activity_count
 
         await prisma.theme.update(
             where={"id": id},

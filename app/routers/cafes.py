@@ -75,13 +75,6 @@ async def get_cafe_detail(
         }
 
     cafe = await prisma.cafe.find_unique(**options)
-    # reviews_count = len(cafe.reviews)
-    # reviews_rating = sum(list(map(lambda x: x.rating, cafe.reviews))) / reviews_count
-
-    # cafe = cafe.dict()
-    # cafe.pop("reviews", None)
-    # cafe["reviewsRating"] = reviews_rating
-    # cafe["reviewsCount"] = reviews_count
 
     await prisma.cafe.update(
         where={"id": id},
