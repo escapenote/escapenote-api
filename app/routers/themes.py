@@ -222,10 +222,18 @@ async def write_review_on_theme(
                 reviews_activity_score += review.activity
                 reviews_activity_count += 1
 
-        reviews_rating = reviews_rating_score / reviews_count
-        reviews_level = reviews_level_score / reviews_level_count
-        reviews_fear = reviews_fear_score / reviews_fear_count
-        reviews_activity = reviews_activity_score / reviews_activity_count
+        reviews_rating = reviews_rating_score / reviews_count if reviews_count else 0
+        reviews_level = (
+            reviews_level_score / reviews_level_count if reviews_level_count else 0
+        )
+        reviews_fear = (
+            reviews_fear_score / reviews_fear_count if reviews_fear_count else 0
+        )
+        reviews_activity = (
+            reviews_activity_score / reviews_activity_count
+            if reviews_activity_count
+            else 0
+        )
 
         await prisma.theme.update(
             where={"id": id},
@@ -239,5 +247,5 @@ async def write_review_on_theme(
         )
 
         return True
-    except:
+    except Exception as e:
         return False

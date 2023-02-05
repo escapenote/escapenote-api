@@ -156,7 +156,10 @@ async def write_review_on_cafe(
 
         reviews = await prisma.cafereview.find_many(where={"cafeId": id})
         reviews_count = len(reviews)
-        reviews_rating = sum(list(map(lambda x: x.rating, reviews))) / reviews_count
+        if reviews_count:
+            reviews_rating = sum(list(map(lambda x: x.rating, reviews))) / reviews_count
+        else:
+            reviews_rating = 0
 
         await prisma.cafe.update(
             where={"id": id},
