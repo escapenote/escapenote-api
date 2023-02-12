@@ -7,6 +7,7 @@ from app.models.auth import AccessUser
 from app.models.cafe import CreateCafeReview
 from app.utils.find_many_cursor import find_many_cursor
 from app.services import auth as auth_service
+from app.services import cafe_reviews as cafe_reviews_service
 
 
 router = APIRouter(
@@ -154,20 +155,7 @@ async def write_review_on_cafe(
             }
         )
 
-        reviews = await prisma.cafereview.find_many(where={"cafeId": id})
-        reviews_count = len(reviews)
-        if reviews_count:
-            reviews_rating = sum(list(map(lambda x: x.rating, reviews))) / reviews_count
-        else:
-            reviews_rating = 0
-
-        await prisma.cafe.update(
-            where={"id": id},
-            data={
-                "reviewsRating": reviews_rating,
-                "reviewsCount": reviews_count,
-            },
-        )
+        await cafe_reviews_service.update_cafe_review(id)
 
         return True
     except:
