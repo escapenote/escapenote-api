@@ -1,8 +1,10 @@
+from typing import Optional
 from fastapi import APIRouter, Depends
-from app.models.cafe_reviews import UpdateCafeReview
 
 from app.prisma import prisma
 from app.models.auth import AccessUser
+from app.models.cafe_reviews import UpdateCafeReview
+from app.utils.find_many_cursor import find_many_cursor
 from app.services import auth as auth_service
 from app.services import cafe_reviews as cafe_reviews_service
 
@@ -12,6 +14,36 @@ router = APIRouter(
     tags=["cafe-reviews"],
     responses={404: {"description": "Not found"}},
 )
+
+
+@router.get("")
+async def get_reviews(
+    nickname: str,
+    take: Optional[int] = 20,
+    cursor: Optional[str] = None,
+):
+    """
+    카페 리뷰 리스트 조회
+    """
+    options = {
+        "take": take + 1,
+        "where": {
+            "user": {
+                "nickname": nickname,
+            },
+        },
+        "include": {
+            "cafe": True,
+            "user": True,
+        },
+        "order": {"createdAt": "desc"},
+    }
+    if cursor:
+        options["cursor"] = {"id": cursor}
+
+    cafereviews = await prisma.cafereview.find_many(**options)
+    result = find_many_cursor(cafereviews, cursor=cursor)
+    return result
 
 
 @router.get("/{id}")

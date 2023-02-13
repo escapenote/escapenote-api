@@ -1,9 +1,11 @@
+from typing import Optional
 from fastapi import APIRouter, Depends
-from app.models.theme_review import UpdateThemeReview
 
 from app.prisma import prisma
 from app.models.auth import AccessUser
-from app.services import auth as auth_service, theme_reviews
+from app.models.theme_review import UpdateThemeReview
+from app.utils.find_many_cursor import find_many_cursor
+from app.services import auth as auth_service
 from app.services import theme_reviews as theme_reviews_service
 
 
@@ -12,6 +14,36 @@ router = APIRouter(
     tags=["theme-reviews"],
     responses={404: {"description": "Not found"}},
 )
+
+
+@router.get("")
+async def get_reviews(
+    nickname: str,
+    take: Optional[int] = 20,
+    cursor: Optional[str] = None,
+):
+    """
+    테마 리뷰 리스트 조회
+    """
+    options = {
+        "take": take + 1,
+        "where": {
+            "user": {
+                "nickname": nickname,
+            },
+        },
+        "include": {
+            "theme": True,
+            "user": True,
+        },
+        "order": {"createdAt": "desc"},
+    }
+    if cursor:
+        options["cursor"] = {"id": cursor}
+
+    themereviews = await prisma.themereview.find_many(**options)
+    result = find_many_cursor(themereviews, cursor=cursor)
+    return result
 
 
 @router.get("/{id}")
