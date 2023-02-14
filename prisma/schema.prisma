@@ -5,8 +5,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  // url      = env("DATABASE_URL")
-  url      = "mysql://admin:EscapeNote22@escapenote-db-prod.cjwjtu7btqvc.ap-northeast-2.rds.amazonaws.com/escapenote"
+  url      = env("DATABASE_URL")
 }
 
 enum CertType {

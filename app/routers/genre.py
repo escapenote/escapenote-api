@@ -10,14 +10,9 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-cache_options = {
-    "expire": 3600,  # 1시간
-    "namespace": __name__.split(".")[-1],
-}
-
 
 @router.get("")
-@cache(expire=cache_options["expire"], namespace=cache_options["namespace"])
+@cache(expire=3600)  # 1시간
 async def get_genreList():
     genre_list = await prisma.genre.find_many(order={"id": "asc"})
     return genre_list
