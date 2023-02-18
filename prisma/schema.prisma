@@ -83,7 +83,8 @@ model Cafe {
   view          Int          @default(0)
   saves         CafeSave[]
   reviews       CafeReview[]
-  status        StatusType
+  scrapper      Scrapper?
+  status        StatusType   @default(PROCESSING)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
@@ -130,6 +131,7 @@ model Theme {
   cafe            Cafe          @relation(fields: [cafeId], references: [id])
   cafeId          String
   name            String
+  displayName     String        @default("")
   intro           String        @db.Text
   thumbnail       String        @default("")
   genre           Genre[]
@@ -152,7 +154,7 @@ model Theme {
   view            Int           @default(0)
   saves           ThemeSave[]
   reviews         ThemeReview[]
-  status          StatusType
+  status          StatusType    @default(PROCESSING)
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -199,4 +201,42 @@ model Faq {
   updatedAt DateTime   @updatedAt
 
   @@map("faq")
+}
+
+model Scrapper {
+  id                   String     @id @default(cuid())
+  url                  String
+  comment              String     @default("")
+  cafe                 Cafe?      @relation(fields: [cafeId], references: [id])
+  cafeId               String?    @unique
+  groupSelector        String     @default("")
+  themeSelector        String     @default("")
+  themePostProcessing  String     @default("")
+  branchSelector       String     @default("")
+  branchPostProcessing String     @default("")
+  metric               Metric?
+  status               StatusType @default(PROCESSING)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  @@map("scrappers")
+}
+
+enum MetricType {
+  SOMETHING_WRONG
+  NOTHING_WRONG
+}
+
+model Metric {
+  id              String     @id @default(cuid())
+  scrapper        Scrapper?  @relation(fields: [scrapperId], references: [id])
+  scrapperId      String?    @unique
+  currentThemes   Json?
+  scrappedThemes  Json?
+  differentThemes Json?
+  status          MetricType
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@map("metrics")
 }
