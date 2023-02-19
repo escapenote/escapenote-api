@@ -1,6 +1,6 @@
 from prisma import types
 from typing import Optional
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, status
 
 from app.prisma import prisma
 from app.models.auth import AccessUser
@@ -187,6 +187,15 @@ async def write_review_on_theme(
     body: CreateThemeReview,
     current_user: AccessUser = Depends(auth_service.get_current_user),
 ):
+    themereview = await prisma.themereview.find_first(
+        where={"userId": current_user.id},
+    )
+    if themereview:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="해당 테마에 이미 작성된 리뷰가 있습니다.",
+        )
+
     try:
         await prisma.themereview.create(
             data={
@@ -200,9 +209,10 @@ async def write_review_on_theme(
                 "user": {"connect": {"id": current_user.id}},
             }
         )
-
         await theme_reviews_service.update_theme_review(id)
-
         return True
     except Exception as e:
-        return False
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="리뷰 작성에 실패하였습니다.",
+        )
