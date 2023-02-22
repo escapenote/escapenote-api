@@ -49,7 +49,7 @@ async def get_themes(
         "order": {sort: order},
     }
     if term:
-        options["where"]["name"] = {"contains": term}
+        options["where"]["displayName"] = {"contains": term}
     if cafeId:
         options["where"]["cafe"] = {"id": cafeId}
     if areaB:
