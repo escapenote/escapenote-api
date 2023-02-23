@@ -21,6 +21,7 @@ router = APIRouter(
 async def get_themes(
     term: Optional[str] = None,
     cafeId: Optional[str] = None,
+    areaA: Optional[str] = None,
     areaB: Optional[str] = None,
     genre: Optional[str] = None,
     level: Optional[int] = None,
@@ -52,6 +53,8 @@ async def get_themes(
         options["where"]["displayName"] = {"contains": term}
     if cafeId:
         options["where"]["cafe"] = {"id": cafeId}
+    if areaA:
+        options["where"]["cafe"] = {"areaA": areaA}
     if areaB:
         options["where"]["cafe"] = {"areaB": areaB}
     if genre:
