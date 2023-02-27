@@ -326,7 +326,7 @@ async def login(
 
 async def refresh(res: Response, user: AccessUser):
     if not user:
-        res.delete_cookie("refreshToken")
+        res.delete_cookie(key="refreshToken", domain=DOMAIN, path="/")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="접근 권한이 없습니다.",
