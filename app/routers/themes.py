@@ -191,7 +191,10 @@ async def write_review_on_theme(
     current_user: AccessUser = Depends(auth_service.get_current_user),
 ):
     themereview = await prisma.themereview.find_first(
-        where={"userId": current_user.id},
+        where={
+            "userId": current_user.id,
+            "themeId": id,
+        },
     )
     if themereview:
         raise HTTPException(
