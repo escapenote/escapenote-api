@@ -5,6 +5,7 @@ from prisma import models
 
 
 class User(BaseModel):
+    id: str
     email: Optional[str]
     avatar: str
     nickname: str
