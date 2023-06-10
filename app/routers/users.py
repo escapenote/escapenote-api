@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.get("")
+@router.get("", response_model=User)
 async def get_user(nickname: str):
     user = await prisma.user.find_unique(
         where={
