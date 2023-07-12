@@ -25,9 +25,10 @@ else:
 # CORS Origins
 origins = [
     "http://localhost:3000",
-    "http://local.escape-note.com:3000",
     "https://escape-note.com",
     "https://www.escape-note.com",
+    "http://local.escape-note.com",
+    "http://local.escape-note.com:3000",
 ]
 
 # CORS 미들웨어 설정

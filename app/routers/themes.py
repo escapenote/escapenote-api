@@ -222,3 +222,22 @@ async def write_review_on_theme(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="리뷰 작성에 실패하였습니다.",
         )
+
+
+@router.get("/{id}/blog-reviews")
+async def get_theme_blog_reviews(
+    id: str,
+    take: Optional[int] = 10,
+    cursor: Optional[str] = None,
+):
+    options = {
+        "take": take + 1,
+        "where": {"themeId": id},
+        "order": {"createdAt": "desc"},
+    }
+    if cursor:
+        options["cursor"] = {"id": cursor}
+
+    reviews = await prisma.blogreview.find_many(**options)
+    result = find_many_cursor(reviews, take=take, cursor=cursor)
+    return result

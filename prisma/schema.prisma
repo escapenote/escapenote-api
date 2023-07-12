@@ -64,29 +64,31 @@ enum StatusType {
 }
 
 model Cafe {
-  id            String       @id @default(cuid())
-  naverMapId    String       @default("")
-  areaA         String
-  areaB         String
-  name          String
-  intro         String?      @db.Text
-  addressLine   String       @default("")
-  lat           Float        @default(0.0)
-  lng           Float        @default(0.0)
-  images        Json
-  website       String       @default("")
-  tel           String       @default("")
-  openingHours  Json
-  reviewsRating Float        @default(0.0)
-  reviewsCount  Int          @default(0)
-  themes        Theme[]
-  view          Int          @default(0)
-  saves         CafeSave[]
-  reviews       CafeReview[]
-  scrapper      Scrapper?
-  status        StatusType   @default(PROCESSING)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id               String       @id @default(cuid())
+  naverMapId       String       @default("")
+  areaA            String
+  areaB            String
+  name             String
+  intro            String?      @db.Text
+  addressLine      String       @default("")
+  lat              Float        @default(0.0)
+  lng              Float        @default(0.0)
+  images           Json
+  website          String       @default("")
+  tel              String       @default("")
+  openingHours     Json
+  reviewsRating    Float        @default(0.0)
+  reviewsCount     Int          @default(0)
+  blogReviewsCount Int          @default(0)
+  themes           Theme[]
+  view             Int          @default(0)
+  saves            CafeSave[]
+  reviews          CafeReview[]
+  blogReviews      BlogReview[]
+  scrapper         Scrapper?
+  status           StatusType   @default(PROCESSING)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   @@map("cafes")
 }
@@ -127,36 +129,38 @@ model Genre {
 }
 
 model Theme {
-  id              String        @id @default(cuid())
-  cafe            Cafe          @relation(fields: [cafeId], references: [id])
-  cafeId          String
-  name            String
-  displayName     String        @default("")
-  intro           String        @db.Text
-  thumbnail       String        @default("")
-  genre           Genre[]
-  price           Int           @default(0)
-  lockingRatio    Int           @default(0)
-  during          Int           @default(0)
-  minPerson       Int           @default(0)
-  maxPerson       Int           @default(0)
-  level           Float         @default(0.0)
-  fear            Int           @default(0)
-  activity        Int           @default(0)
-  detailUrl       String        @default("")
-  reservationUrl  String        @default("")
-  openDate        String        @default("")
-  reviewsRating   Float         @default(0.0)
-  reviewsLevel    Float         @default(0.0)
-  reviewsFear     Float         @default(0.0)
-  reviewsActivity Float         @default(0.0)
-  reviewsCount    Int           @default(0)
-  view            Int           @default(0)
-  saves           ThemeSave[]
-  reviews         ThemeReview[]
-  status          StatusType    @default(PROCESSING)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id               String        @id @default(cuid())
+  cafe             Cafe          @relation(fields: [cafeId], references: [id])
+  cafeId           String
+  name             String
+  displayName      String        @default("")
+  intro            String        @db.Text
+  thumbnail        String        @default("")
+  genre            Genre[]
+  price            Int           @default(0)
+  lockingRatio     Int           @default(0)
+  during           Int           @default(0)
+  minPerson        Int           @default(0)
+  maxPerson        Int           @default(0)
+  level            Float         @default(0.0)
+  fear             Int           @default(0)
+  activity         Int           @default(0)
+  detailUrl        String        @default("")
+  reservationUrl   String        @default("")
+  openDate         String        @default("")
+  reviewsRating    Float         @default(0.0)
+  reviewsLevel     Float         @default(0.0)
+  reviewsFear      Float         @default(0.0)
+  reviewsActivity  Float         @default(0.0)
+  reviewsCount     Int           @default(0)
+  blogReviewsCount Int           @default(0)
+  view             Int           @default(0)
+  saves            ThemeSave[]
+  reviews          ThemeReview[]
+  blogReviews      BlogReview[]
+  status           StatusType    @default(PROCESSING)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
   @@map("themes")
 }
@@ -189,6 +193,22 @@ model ThemeReview {
   updatedAt DateTime @updatedAt
 
   @@map("theme_reviews")
+}
+
+model BlogReview {
+  id        String   @id @default(cuid())
+  cafe      Cafe?    @relation(fields: [cafeId], references: [id])
+  cafeId    String?
+  theme     Theme?   @relation(fields: [themeId], references: [id])
+  themeId   String?
+  title     String
+  desc      String   @default("") @db.VarChar(300)
+  url       String   @db.VarChar(300)
+  thumbnail String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("blog_reviews")
 }
 
 model Faq {
