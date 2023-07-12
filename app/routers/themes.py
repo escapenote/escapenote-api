@@ -93,7 +93,7 @@ async def get_themes(
         }
 
     themes = await prisma.theme.find_many(**options)
-    result = find_many_cursor(themes, cursor=cursor)
+    result = find_many_cursor(themes, take=take, cursor=cursor)
     return result
 
 
@@ -180,7 +180,7 @@ async def get_theme_reviews(
         options["cursor"] = {"id": cursor}
 
     reviews = await prisma.themereview.find_many(**options)
-    result = find_many_cursor(reviews, cursor=cursor)
+    result = find_many_cursor(reviews, take=take, cursor=cursor)
     return result
 
 

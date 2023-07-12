@@ -47,7 +47,7 @@ async def get_saved_cafes(
         options["cursor"] = {"id": cursor}
 
     cafes = await prisma.cafe.find_many(**options)
-    result = find_many_cursor(cafes, cursor=cursor)
+    result = find_many_cursor(cafes, take=take, cursor=cursor)
     return result
 
 
@@ -72,5 +72,5 @@ async def get_saved_themes(
         options["cursor"] = {"id": cursor}
 
     themes = await prisma.theme.find_many(**options)
-    result = find_many_cursor(themes, cursor=cursor)
+    result = find_many_cursor(themes, take=take, cursor=cursor)
     return result

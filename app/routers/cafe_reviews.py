@@ -42,7 +42,7 @@ async def get_reviews(
         options["cursor"] = {"id": cursor}
 
     cafereviews = await prisma.cafereview.find_many(**options)
-    result = find_many_cursor(cafereviews, cursor=cursor)
+    result = find_many_cursor(cafereviews, take=take, cursor=cursor)
     return result
 
 
