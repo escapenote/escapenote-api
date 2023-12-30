@@ -2,7 +2,7 @@
 CREATE TABLE `cafe_reviews` (
     `id` VARCHAR(191) NOT NULL,
     `rating` DOUBLE NOT NULL DEFAULT 5,
-    `text` TEXT NOT NULL DEFAULT '',
+    `text` TEXT NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
     `cafeId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -19,7 +19,7 @@ CREATE TABLE `theme_reviews` (
     `level` INTEGER NOT NULL DEFAULT 0,
     `fear` INTEGER NOT NULL DEFAULT 0,
     `activity` INTEGER NOT NULL DEFAULT 0,
-    `text` TEXT NOT NULL DEFAULT '',
+    `text` TEXT NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
     `themeId` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),

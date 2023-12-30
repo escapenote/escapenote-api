@@ -1,11 +1,5 @@
 -- AlterTable
-ALTER TABLE `cafe_reviews` MODIFY `text` TEXT NOT NULL DEFAULT '';
-
--- AlterTable
 ALTER TABLE `cafes` MODIFY `status` ENUM('PROCESSING', 'PUBLISHED', 'DELETED') NOT NULL DEFAULT 'PROCESSING';
-
--- AlterTable
-ALTER TABLE `theme_reviews` MODIFY `text` TEXT NOT NULL DEFAULT '';
 
 -- AlterTable
 ALTER TABLE `themes` ADD COLUMN `displayName` VARCHAR(191) NOT NULL DEFAULT '',

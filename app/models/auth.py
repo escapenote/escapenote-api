@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 
 
 class AccessUser(BaseModel):
+    provider: Union[str, None] = None
     id: Union[str, None] = None
 
 
@@ -18,8 +19,12 @@ class EditProfileDto(BaseModel):
 
 
 class ChangePasswordDto(BaseModel):
-    oldPassword: str
+    oldPassword: Optional[str] = Field("")
     newPassword: str
+
+
+class CheckForDuplicateNicknameDto(BaseModel):
+    nickname: str
 
 
 class SendPasswordByEmaileDto(BaseModel):
@@ -46,16 +51,16 @@ class SignupByEmaileDto(BaseModel):
     avatar: Optional[str] = Field("")
     nickname: str
     type: Optional[str] = Field("")
-    agreeOlder14Years: bool
-    agreeTerms: bool
-    agreePrivacy: bool
+    agreeMarketing: bool
+
+
+class SignupBySocialDto(BaseModel):
+    avatar: Optional[str] = Field("")
+    nickname: str
+    type: Optional[str] = Field("")
     agreeMarketing: bool
 
 
 class LoginDto(BaseModel):
     email: str
     password: str
-
-
-class CheckForDuplicateNicknameDto(BaseModel):
-    nickname: str

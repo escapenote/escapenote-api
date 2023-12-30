@@ -10,9 +10,6 @@
 DROP INDEX `users_username_key` ON `users`;
 
 -- AlterTable
-ALTER TABLE `cafes` MODIFY `intro` TEXT NOT NULL DEFAULT '';
-
--- AlterTable
 ALTER TABLE `users` DROP COLUMN `username`,
     ADD COLUMN `nickname` VARCHAR(191) NOT NULL,
     ADD COLUMN `type` VARCHAR(191) NOT NULL DEFAULT '';

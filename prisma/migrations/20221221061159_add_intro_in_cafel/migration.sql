@@ -6,6 +6,6 @@
 
 */
 -- AlterTable
-ALTER TABLE `cafes` ADD COLUMN `intro` TEXT NOT NULL DEFAULT '',
+ALTER TABLE `cafes` ADD COLUMN `intro` TEXT NOT NULL,
     MODIFY `images` JSON NOT NULL,
     MODIFY `openingHours` JSON NOT NULL;

@@ -1,9 +1,3 @@
--- AlterTable
-ALTER TABLE `cafe_reviews` MODIFY `text` TEXT NOT NULL DEFAULT '';
-
--- AlterTable
-ALTER TABLE `theme_reviews` MODIFY `text` TEXT NOT NULL DEFAULT '';
-
 -- CreateTable
 CREATE TABLE `blog_reviews` (
     `id` VARCHAR(191) NOT NULL,

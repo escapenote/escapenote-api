@@ -1,6 +1,3 @@
--- AlterTable
-ALTER TABLE `cafes` MODIFY `intro` TEXT NOT NULL DEFAULT '';
-
 -- CreateTable
 CREATE TABLE `certifications` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,

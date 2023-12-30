@@ -7,12 +7,6 @@
 -- DropForeignKey
 ALTER TABLE `monitoring` DROP FOREIGN KEY `monitoring_scrapperId_fkey`;
 
--- AlterTable
-ALTER TABLE `cafe_reviews` MODIFY `text` TEXT NOT NULL DEFAULT '';
-
--- AlterTable
-ALTER TABLE `theme_reviews` MODIFY `text` TEXT NOT NULL DEFAULT '';
-
 -- DropTable
 DROP TABLE `monitoring`;
 

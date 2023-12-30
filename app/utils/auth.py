@@ -8,16 +8,19 @@ from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
 
+from app.config import settings
+
 # to get a string like this run: openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY = settings.secret_key
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 REFRESH_TOKEN_EXPIRE_DAYS = 30
+REGISTER_TOKEN_EXPIRE_DAY = 1
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def generate_secret():
+def generate_code():
     n = 6
     range_start = 10 ** (n - 1)
     range_end = (10**n) - 1
@@ -67,7 +70,7 @@ def send_secret_by_email(address: str, secret: str):
     except:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"이메일을 보내지 봇했습니다.",
+            detail=f"이메일을 보내지 못했습니다.",
         )
 
 
@@ -96,7 +99,7 @@ def send_password_by_email(address: str, password: str):
     except:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"이메일을 보내지 봇했습니다.",
+            detail=f"이메일을 보내지 못했습니다.",
         )
 
 
@@ -130,4 +133,17 @@ def generate_tokens(userId: str):
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
+    }
+
+
+def generate_register_token(provider: str, email: str):
+    jwt_payload = {"provider": provider, "sub": email}
+
+    register_token_expires = timedelta(days=REGISTER_TOKEN_EXPIRE_DAY)
+    register_token = create_token(
+        data=jwt_payload, expires_delta=register_token_expires
+    )
+
+    return {
+        "register_token": register_token,
     }

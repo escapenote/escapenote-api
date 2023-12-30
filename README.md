@@ -2,7 +2,8 @@
 
 ## ✨ Requirements
 
-- Python 3.8
+- Python 3.9.6
+- Pip 23.3.1
 
 ## 📚 Technical Stacks
 

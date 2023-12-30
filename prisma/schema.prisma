@@ -1,36 +1,17 @@
 generator client {
-  provider  = "prisma-client-py"
-  interface = "asyncio"
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
 }
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
+  url      = "mysql://root@localhost:3306/escapenote"
 }
 
-enum CertType {
-  EMAIL
-  PHONE_NUMBER
-}
-
-enum CertStatusType {
-  PENDING
-  VERIFIED
-  INVALID
-  COMPLETE
-}
-
-model Cert {
-  id        Int            @id @default(autoincrement())
-  type      CertType
-  value     String
-  secret    String
-  status    CertStatusType @default(PENDING)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-
-  @@map("certifications")
-}
+//
+// User, Account, VerficationCode, Follow
+//
 
 model User {
   id                  String        @id @default(cuid())
@@ -47,6 +28,7 @@ model User {
   agreeTerms          Boolean       @default(false)
   agreePrivacy        Boolean       @default(false)
   agreeMarketing      Boolean       @default(false)
+  accounts            Account[]
   cafeSaves           CafeSave[]
   cafeReviews         CafeReview[]
   themeSaves          ThemeSave[]
@@ -57,11 +39,31 @@ model User {
   @@map("users")
 }
 
-enum StatusType {
-  PROCESSING
-  PUBLISHED
-  DELETED
+model Account {
+  id        String   @id @default(cuid())
+  provider  String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("accounts")
 }
+
+model VerificationCode {
+  id         String                 @id @default(cuid())
+  identifier String
+  code       String
+  status     VerificationStatusType @default(PENDING)
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+
+  @@map("verification_codes")
+}
+
+//
+// Cafe, Genre, Theme
+//
 
 model Cafe {
   id               String       @id @default(cuid())
@@ -108,7 +110,7 @@ model CafeSave {
 model CafeReview {
   id        String   @id @default(cuid())
   rating    Float    @default(5)
-  text      String   @default("") @db.Text
+  text      String?  @db.Text
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   cafe      Cafe     @relation(fields: [cafeId], references: [id])
@@ -134,7 +136,7 @@ model Theme {
   cafeId           String
   name             String
   displayName      String        @default("")
-  intro            String        @db.Text
+  intro            String?       @db.Text
   thumbnail        String        @default("")
   genre            Genre[]
   price            Int           @default(0)
@@ -184,7 +186,7 @@ model ThemeReview {
   level     Int      @default(0)
   fear      Int      @default(0)
   activity  Int      @default(0)
-  text      String   @default("") @db.Text
+  text      String?  @db.Text
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   theme     Theme    @relation(fields: [themeId], references: [id])
@@ -211,6 +213,10 @@ model BlogReview {
   @@map("blog_reviews")
 }
 
+//
+// FAQ
+//
+
 model Faq {
   id        String     @id @default(cuid())
   question  String
@@ -222,6 +228,10 @@ model Faq {
 
   @@map("faq")
 }
+
+//
+// Crawling
+//
 
 model Scrapper {
   id                   String     @id @default(cuid())
@@ -242,11 +252,6 @@ model Scrapper {
   @@map("scrappers")
 }
 
-enum MetricType {
-  SOMETHING_WRONG
-  NOTHING_WRONG
-}
-
 model Metric {
   id              String     @id @default(cuid())
   scrapper        Scrapper?  @relation(fields: [scrapperId], references: [id])
@@ -259,4 +264,26 @@ model Metric {
   updatedAt       DateTime   @updatedAt
 
   @@map("metrics")
+}
+
+//
+// Types
+//
+
+enum VerificationStatusType {
+  PENDING
+  VERIFIED
+  INVALID
+  COMPLETE
+}
+
+enum StatusType {
+  PROCESSING
+  PUBLISHED
+  DELETED
+}
+
+enum MetricType {
+  SOMETHING_WRONG
+  NOTHING_WRONG
 }

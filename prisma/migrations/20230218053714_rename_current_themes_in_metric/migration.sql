@@ -5,11 +5,5 @@
 
 */
 -- AlterTable
-ALTER TABLE `cafe_reviews` MODIFY `text` TEXT NOT NULL DEFAULT '';
-
--- AlterTable
 ALTER TABLE `metrics` DROP COLUMN `cruuentThemes`,
     ADD COLUMN `currentThemes` JSON NULL;
-
--- AlterTable
-ALTER TABLE `theme_reviews` MODIFY `text` TEXT NOT NULL DEFAULT '';
