@@ -10,5 +10,7 @@ class User(BaseModel):
     avatar: str
     nickname: str
     type: str
+    hasPassword: Optional[bool]
+    accounts: Optional[List["models.Account"]]
     cafeReviews: Optional[List["models.CafeReview"]]
     themeReviews: Optional[List["models.ThemeReview"]]

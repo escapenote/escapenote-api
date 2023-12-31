@@ -1,4 +1,3 @@
-from datetime import datetime
 from jose import JWTError, jwt
 from fastapi import Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordBearer
@@ -73,11 +72,7 @@ async def refresh(res: Response, user: AccessUser):
         where={"id": user.id},
         data={"refreshToken": tokens["refresh_token"]},
     )
-    user = user.__dict__
-    if user["password"]:
-        user["hasPassword"] = True
-    else:
-        user["hasPassword"] = False
+    user = auth_utils.check_has_password(user)
 
     return {
         "tokenType": "bearer",
@@ -284,11 +279,7 @@ async def login_by_email(res: Response, email: str, password: str):
         where={"id": user.id},
         data={"refreshToken": tokens["refresh_token"]},
     )
-    user = user.__dict__
-    if user["password"]:
-        user["hasPassword"] = True
-    else:
-        user["hasPassword"] = False
+    user = auth_utils.check_has_password(user)
 
     return {
         "tokenType": "bearer",
@@ -361,11 +352,7 @@ async def signup_by_email(res: Response, body: SignupByEmaileDto):
         where={"id": user.id},
         data={"refreshToken": tokens["refresh_token"]},
     )
-    user = user.__dict__
-    if user["password"]:
-        user["hasPassword"] = True
-    else:
-        user["hasPassword"] = False
+    user = auth_utils.check_has_password(user)
 
     return {
         "tokenType": "bearer",
@@ -415,11 +402,7 @@ async def login_by_social(res: Response, provider: str, email: str):
         where={"id": user.id},
         data={"refreshToken": tokens["refresh_token"]},
     )
-    user = user.__dict__
-    if user["password"]:
-        user["hasPassword"] = True
-    else:
-        user["hasPassword"] = False
+    user = auth_utils.check_has_password(user)
 
     return {
         "tokenType": "bearer",
@@ -497,21 +480,17 @@ async def signup_by_social(
         secure=False,
     )
 
-    current_user = await prisma.user.update(
+    user = await prisma.user.update(
         where={"id": create_user.id},
         data={"refreshToken": tokens["refresh_token"]},
     )
-    current_user = current_user.__dict__
-    if current_user["password"]:
-        current_user["hasPassword"] = True
-    else:
-        current_user["hasPassword"] = False
+    user = auth_utils.check_has_password(user)
 
     return {
         "tokenType": "bearer",
         "accessToken": tokens["access_token"],
         "refreshToken": tokens["refresh_token"],
-        "user": current_user,
+        "user": user,
     }
 
 

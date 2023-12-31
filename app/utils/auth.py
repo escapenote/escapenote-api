@@ -3,7 +3,7 @@ import secrets
 import string
 from jose import jwt
 from random import randint
-from typing import Union
+from typing import Union, Any
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
@@ -56,12 +56,12 @@ def send_secret_by_email(address: str, secret: str):
             Message={
                 "Subject": {
                     "Charset": "utf-8",
-                    "Data": "ESCAPE NOTE의 인증번호입니다.",
+                    "Data": "이스케이프노트의 인증번호입니다.",
                 },
                 "Body": {
                     "Html": {
                         "Charset": "utf-8",
-                        "Data": f"ESCAPE NOTE의 인증번호는 [<strong>{secret}</strong>] 입니다.",
+                        "Data": f"이스케이프노트의 인증번호는 [<strong>{secret}</strong>] 입니다.",
                     }
                 },
             },
@@ -85,12 +85,12 @@ def send_password_by_email(address: str, password: str):
             Message={
                 "Subject": {
                     "Charset": "utf-8",
-                    "Data": "ESCAPE NOTE 임시 비밀번호입니다.",
+                    "Data": "이스케이프노트 임시 비밀번호입니다.",
                 },
                 "Body": {
                     "Html": {
                         "Charset": "utf-8",
-                        "Data": f"ESCAPE NOTE 임시 비밀번호는 <strong>{password}</strong> 입니다.",
+                        "Data": f"이스케이프노트 임시 비밀번호는 <strong>{password}</strong> 입니다.",
                     }
                 },
             },
@@ -147,3 +147,12 @@ def generate_register_token(provider: str, email: str):
     return {
         "register_token": register_token,
     }
+
+
+def check_has_password(user: Any):
+    user = user.__dict__
+    if user["password"]:
+        user["hasPassword"] = True
+    else:
+        user["hasPassword"] = False
+    return user

@@ -55,11 +55,7 @@ async def read_users_me(current_user: User = Depends(auth_service.get_current_us
     user = await prisma.user.find_unique(
         where={"id": current_user.id},
     )
-    user = user.__dict__
-    if user["password"]:
-        user["hasPassword"] = True
-    else:
-        user["hasPassword"] = False
+    user = auth_utils.check_has_password(user)
     return user
 
 
