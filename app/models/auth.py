@@ -61,6 +61,6 @@ class SignupBySocialDto(BaseModel):
     agreeMarketing: bool
 
 
-class LoginDto(BaseModel):
+class LoginByEmaileDto(BaseModel):
     email: str
     password: str

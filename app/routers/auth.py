@@ -10,7 +10,7 @@ from app.config import settings
 from app.models.auth import (
     CheckForDuplicateNicknameDto,
     EditProfileDto,
-    LoginDto,
+    LoginByEmaileDto,
     ChangePasswordDto,
     SendPasswordByEmaileDto,
     SignupBySocialDto,
@@ -85,27 +85,42 @@ async def check_for_duplicate_email(body: CheckForDuplicateEmaileDto):
 
 @router.post("/email/send_code")
 async def send_code_by_email(body: SendCodeByEmaileDto):
-    return await auth_service.send_code(body.email)
+    return await auth_service.send_code_by_email(body.email)
 
 
 @router.post("/email/verify_code")
 async def verify_code_by_email(body: VerifyCodeByEmaileDto):
-    return await auth_service.verify_code(body.email, body.code)
+    return await auth_service.verify_code_by_email(body.email, body.code)
 
 
 @router.post("/email/send_password")
 async def send_password_by_email(body: SendPasswordByEmaileDto):
-    return await auth_service.send_password(body.email)
-
-
-@router.post("/login/email")
-async def login_by_email(res: Response, body: LoginDto):
-    return await auth_service.login_by_email(res, body.email, body.password)
+    return await auth_service.send_password_by_email(body.email)
 
 
 @router.post("/signup/email")
 async def signup_by_email(res: Response, body: SignupByEmaileDto):
     return await auth_service.signup_by_email(res, body)
+
+
+@router.post("/signup/social")
+async def signup_by_social(
+    res: Response, body: SignupBySocialDto, registerToken: Optional[str] = Cookie(None)
+):
+    if registerToken:
+        user = await auth_service.get_current_user(registerToken)
+        result = await auth_service.signup_by_social(res, user, body)
+        return result
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="회원가입 권한이 없습니다.",
+        )
+
+
+@router.post("/login/email")
+async def login_by_email(res: Response, body: LoginByEmaileDto):
+    return await auth_service.login_by_email(res, body.email, body.password)
 
 
 @router.get("/login/google")
@@ -252,21 +267,6 @@ async def login_kakao_callback(code: str):
         res = RedirectResponse(settings.front_signup_url)
         await auth_service.pre_signup_by_social(res, provider, email)
         return res
-
-
-@router.post("/signup/social")
-async def signup_by_social(
-    res: Response, body: SignupBySocialDto, registerToken: Optional[str] = Cookie(None)
-):
-    if registerToken:
-        user = await auth_service.get_current_user(registerToken)
-        result = await auth_service.signup_by_social(res, user, body)
-        return result
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="회원가입 권한이 없습니다.",
-        )
 
 
 @router.post("/logout")

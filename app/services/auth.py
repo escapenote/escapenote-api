@@ -158,7 +158,7 @@ async def check_for_duplicate_email(email: str):
     return True
 
 
-async def send_password(email: str):
+async def send_password_by_email(email: str):
     user = await prisma.user.find_unique(where={"email": email})
     if not user:
         raise HTTPException(
@@ -179,7 +179,7 @@ async def send_password(email: str):
     return True
 
 
-async def send_code(email: str):
+async def send_code_by_email(email: str):
     user = await prisma.user.find_unique(where={"email": email})
     if user:
         raise HTTPException(
@@ -209,7 +209,7 @@ async def send_code(email: str):
     return True
 
 
-async def verify_code(email: str, code: str):
+async def verify_code_by_email(email: str, code: str):
     await prisma.verificationcode.update_many(
         where={
             "identifier": email,
@@ -245,49 +245,6 @@ async def verify_code(email: str, code: str):
         return True
     except:
         return False
-
-
-async def login_by_email(res: Response, email: str, password: str):
-    user = await prisma.user.find_unique(where={"email": email})
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="사용자를 찾을 수 없습니다.",
-        )
-
-    valid_password = auth_utils.verify_password(
-        password,
-        user.password,
-    )
-    if not valid_password:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="잘못된 비밀번호입니다.",
-        )
-
-    tokens = auth_utils.generate_tokens(user.id)
-    res.set_cookie(
-        key="refreshToken",
-        value=tokens["refresh_token"],
-        domain=settings.domain,
-        expires=REFRESH_TOKEN_EXPIRE_IN,
-        httponly=True,
-        secure=False,
-    )
-
-    user = await prisma.user.update(
-        where={"id": user.id},
-        data={"refreshToken": tokens["refresh_token"]},
-    )
-    user = auth_utils.check_has_password(user)
-
-    return {
-        "tokenType": "bearer",
-        "accessToken": tokens["access_token"],
-        "refreshToken": tokens["refresh_token"],
-        "expiredAt": REFRESH_TOKEN_EXPIRE_IN,
-        "user": user,
-    }
 
 
 async def signup_by_email(res: Response, body: SignupByEmaileDto):
@@ -363,55 +320,6 @@ async def signup_by_email(res: Response, body: SignupByEmaileDto):
     }
 
 
-async def login_by_social(res: Response, provider: str, email: str):
-    user = await prisma.user.find_first(
-        where={"email": email},
-    )
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="사용자를 찾을 수 없습니다.",
-        )
-
-    account = await prisma.account.find_first(
-        where={
-            "provider": provider,
-            "userId": user.id,
-        }
-    )
-    if not account:
-        await prisma.account.create(
-            data={
-                "provider": provider,
-                "userId": user.id,
-            }
-        )
-
-    tokens = auth_utils.generate_tokens(user.id)
-    res.set_cookie(
-        key="refreshToken",
-        value=tokens["refresh_token"],
-        domain=settings.domain,
-        path="/",
-        expires=REFRESH_TOKEN_EXPIRE_IN,
-        httponly=True,
-        secure=False,
-    )
-
-    user = await prisma.user.update(
-        where={"id": user.id},
-        data={"refreshToken": tokens["refresh_token"]},
-    )
-    user = auth_utils.check_has_password(user)
-
-    return {
-        "tokenType": "bearer",
-        "accessToken": tokens["access_token"],
-        "refreshToken": tokens["refresh_token"],
-        "user": user,
-    }
-
-
 async def pre_signup_by_social(res: Response, provider: str, email: str):
     tokens = auth_utils.generate_register_token(provider, email)
     res.set_cookie(
@@ -482,6 +390,98 @@ async def signup_by_social(
 
     user = await prisma.user.update(
         where={"id": create_user.id},
+        data={"refreshToken": tokens["refresh_token"]},
+    )
+    user = auth_utils.check_has_password(user)
+
+    return {
+        "tokenType": "bearer",
+        "accessToken": tokens["access_token"],
+        "refreshToken": tokens["refresh_token"],
+        "user": user,
+    }
+
+
+async def login_by_email(res: Response, email: str, password: str):
+    user = await prisma.user.find_unique(where={"email": email})
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="사용자를 찾을 수 없습니다.",
+        )
+
+    valid_password = auth_utils.verify_password(
+        password,
+        user.password,
+    )
+    if not valid_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="잘못된 비밀번호입니다.",
+        )
+
+    tokens = auth_utils.generate_tokens(user.id)
+    res.set_cookie(
+        key="refreshToken",
+        value=tokens["refresh_token"],
+        domain=settings.domain,
+        expires=REFRESH_TOKEN_EXPIRE_IN,
+        httponly=True,
+        secure=False,
+    )
+
+    user = await prisma.user.update(
+        where={"id": user.id},
+        data={"refreshToken": tokens["refresh_token"]},
+    )
+    user = auth_utils.check_has_password(user)
+
+    return {
+        "tokenType": "bearer",
+        "accessToken": tokens["access_token"],
+        "refreshToken": tokens["refresh_token"],
+        "expiredAt": REFRESH_TOKEN_EXPIRE_IN,
+        "user": user,
+    }
+
+
+async def login_by_social(res: Response, provider: str, email: str):
+    user = await prisma.user.find_first(
+        where={"email": email},
+    )
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="사용자를 찾을 수 없습니다.",
+        )
+
+    account = await prisma.account.find_first(
+        where={
+            "provider": provider,
+            "userId": user.id,
+        }
+    )
+    if not account:
+        await prisma.account.create(
+            data={
+                "provider": provider,
+                "userId": user.id,
+            }
+        )
+
+    tokens = auth_utils.generate_tokens(user.id)
+    res.set_cookie(
+        key="refreshToken",
+        value=tokens["refresh_token"],
+        domain=settings.domain,
+        path="/",
+        expires=REFRESH_TOKEN_EXPIRE_IN,
+        httponly=True,
+        secure=False,
+    )
+
+    user = await prisma.user.update(
+        where={"id": user.id},
         data={"refreshToken": tokens["refresh_token"]},
     )
     user = auth_utils.check_has_password(user)
